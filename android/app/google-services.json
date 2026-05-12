@@ -7,14 +7,14 @@
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:1039776940274:android:c4024767ed30f2102c506b",
+        "mobilesdk_app_id": "1:1039776940274:android:39ce825f12289e082c506b",
         "android_client_info": {
           "package_name": "com.example.civic_connect"
         }
       },
       "oauth_client": [
         {
-          "client_id": "1039776940274-fhirkaofe3rc80mus28q4vkog52mjqmo.apps.googleusercontent.com",
+          "client_id": "1039776940274-7flj6fp7m0gftjabiqdeijor8g44lfas.apps.googleusercontent.com",
           "client_type": 1,
           "android_info": {
             "package_name": "com.example.civic_connect",

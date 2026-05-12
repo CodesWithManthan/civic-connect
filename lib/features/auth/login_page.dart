@@ -11,101 +11,133 @@ class LoginPage extends StatefulWidget {
 }
 
 class _LoginPageState extends State<LoginPage> {
-  TextEditingController email = TextEditingController();
-  TextEditingController password = TextEditingController();
+  final TextEditingController email = TextEditingController();
+  final TextEditingController password = TextEditingController();
 
-  void showError(String message){
-    ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.redAccent,
-      ),
-    );
+  void _showError(String message) {
+    ScaffoldMessenger.of(context).showSnackBar(SnackBar(content: Text(message), backgroundColor: Colors.redAccent));
   }
 
-
-  Login() async{
+  Future<void> _login() async {
     try {
-      await FirebaseAuth.instance.signInWithEmailAndPassword(
-        email: email.text.trim(),
-        password: password.text.trim(),
-      );
+      await FirebaseAuth.instance.signInWithEmailAndPassword(email: email.text.trim(), password: password.text.trim());
     } on FirebaseAuthException catch (e) {
-      if(e.code == 'user-not-found'){
-       showError('No Account Found For This Email');
-      }
-      else if(e.code == 'invalid-email'){
-        showError('Invalid Email Format');
-      }
-      else if(e.code == 'wrong-password'){
-        showError('Incorrect Password');
-      }
-      else{
-        showError('Something Went Wrong');
+      if (e.code == 'user-not-found') {
+        _showError('No account found for this email');
+      } else if (e.code == 'invalid-email') {
+        _showError('Invalid email format');
+      } else if (e.code == 'wrong-password') {
+        _showError('Incorrect password');
+      } else {
+        _showError('Something went wrong');
       }
     }
   }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
+      resizeToAvoidBottomInset: true,
+      backgroundColor: Colors.white,
       appBar: AppBar(
-        title: Text('Login Page'),
-        backgroundColor: Colors.greenAccent,
+        backgroundColor: Colors.white,
+        elevation: 1,
+        title: const Text('Civic Bandhu', style: TextStyle(color: Colors.black87, fontSize: 18)),
+        centerTitle: true,
       ),
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            TextField(
-              controller: email,
-              decoration: InputDecoration(
-                hintText: 'Email',
-                border: OutlineInputBorder(
-                  borderRadius: BorderRadius.circular(0)
-                )
-              )
-            ),
-            SizedBox(height: 20),
-            TextField(
-              controller: password,
+      body: GestureDetector(
+        onTap: () => FocusScope.of(context).unfocus(),
+        child: SingleChildScrollView(
+          reverse: true,
+          padding: const EdgeInsets.symmetric(horizontal: 24),
+          child: Column(
+            // mainAxisAlignment: MainAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              SizedBox(height: MediaQuery.of(context).size.height * 0.15),
+              const Icon(Icons.location_city, size: 52, color: Colors.blue),
+              const SizedBox(height: 8),
+              const Text(
+                'Welcome Back',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 22, fontWeight: FontWeight.bold, color: Colors.black87),
+              ),
+              const SizedBox(height: 4),
+              const Text(
+                'Sign in to continue',
+                textAlign: TextAlign.center,
+                style: TextStyle(fontSize: 14, color: Colors.grey),
+              ),
+              const SizedBox(height: 32),
+
+              TextField(
+                controller: email,
+                keyboardType: TextInputType.emailAddress,
+                decoration: InputDecoration(
+                  hintText: 'Email',
+                  prefixIcon: const Icon(Icons.email_outlined, color: Colors.grey),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 16),
+
+              TextField(
+                controller: password,
                 obscureText: true,
                 decoration: InputDecoration(
-                    hintText: 'Password',
-                    border: OutlineInputBorder(
-                        borderRadius: BorderRadius.circular(0)
-                    )
-                )
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-                onPressed: Login,
-                child: Text('Login')
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
-                onPressed: (){
-                  Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (context) => const SignupPage(),
-                      ),
-                  );
-                },
-                child: Text('Sign Up')
-            ),
-            SizedBox(height: 20),
-            ElevatedButton(
+                  hintText: 'Password',
+                  prefixIcon: const Icon(Icons.lock_outline, color: Colors.grey),
+                  border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+                  contentPadding: const EdgeInsets.symmetric(vertical: 14),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              ElevatedButton(
+                onPressed: _login,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.blue,
+                  foregroundColor: Colors.white,
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+                child: const Text('Login', style: TextStyle(fontSize: 15)),
+              ),
+              const SizedBox(height: 12),
+
+              OutlinedButton.icon(
                 onPressed: () async {
                   try {
                     await GoogleAuthService.signInWithGoogle();
-                  }
-                  catch(e){
-                    print(e);
+                  } catch (e) {
+                    _showError('Google sign-in failed');
                   }
                 },
-                child: Text('Sign In With Google'),
-            ),
-          ],
+                icon: const Icon(Icons.g_mobiledata, size: 22),
+                label: const Text('Sign in with Google'),
+                style: OutlinedButton.styleFrom(
+                  padding: const EdgeInsets.symmetric(vertical: 14),
+                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                ),
+              ),
+              const SizedBox(height: 20),
+
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  const Text("Don't have an account? ", style: TextStyle(color: Colors.grey)),
+                  GestureDetector(
+                    onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => const SignupPage())),
+                    child: const Text(
+                      'Sign Up',
+                      style: TextStyle(color: Colors.blue, fontWeight: FontWeight.w600),
+                    ),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
       ),
     );
