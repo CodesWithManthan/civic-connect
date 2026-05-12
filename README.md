@@ -63,19 +63,19 @@ flutter run
 ## Screenshots
 
 ### Login Screen
-![Login Screen](assets/screenshots/login_screen.png)
+![Login Screen](assets/screenshots/login_screen.jpeg)
 
 ### Signup Screen
-![Signup Screen](assets/screenshots/signup_screen.png)
+![Signup Screen](assets/screenshots/signup_screen.jpeg)
 
 ### Home Screen
-![Home Screen](assets/screenshots/home_screen.png)
+![Home Screen](assets/screenshots/home_screen.jpeg)
 
 ### Report Issue Screen
-![Report Issue Screen](assets/screenshots/report_issue_screen.png)
+![Report Issue Screen](assets/screenshots/report_issue_screen.jpeg)
 
 ### My Reports Screen
-![My Reports Screen](assets/screenshots/my_reports_screen.png)
+![My Reports Screen](assets/screenshots/my_reports_screen.jpeg)
 
 ### Navigation Drawer
-![Navigation Drawer](assets/screenshots/navigation_screen.png)
+![Navigation Drawer](assets/screenshots/navigation_screen.jpeg)
