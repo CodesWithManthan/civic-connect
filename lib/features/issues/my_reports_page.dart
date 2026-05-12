@@ -53,8 +53,8 @@ class _MyReportsPageState extends State<MyReportsPage> {
       'category': 'Road',
       'status': 'In Progress',
       'imageUrls': [
-        'https://images.unsplash.com/photo-1581578731548-c64695cc6952?w=400'
-      ],
+        'https://blogs-images.forbes.com/dam/imageserve/5ad4bb72a7ea432fbc1f0853/0x0.png?cropX1=-1&cropY1=-1&cropX2=-1&cropY2=-1&quality=75&fit=&background=000000&uri=laurenfix/files/2018/04/Pothole-damage.png'
+        ],
       'createdAt': '2026-01-20T10:30:00Z',
       'reportedBy': 'user_123',
       'upvotes': 42,
@@ -67,7 +67,7 @@ class _MyReportsPageState extends State<MyReportsPage> {
       'category': 'Water',
       'status': 'Reported',
       'imageUrls': [
-        'https://images.unsplash.com/photo-1584555684040-bad07f3a82f0?w=400'
+        "https://encrypted-tbn0.gstatic.com/images?q=tbn:ANd9GcT1Xl-h3tGP0beA0xlGRFEMfFTRm1mZ6AO9hg&s"
       ],
       'createdAt': '2026-01-19T16:45:00Z',
       'reportedBy': 'user_123',
@@ -81,7 +81,7 @@ class _MyReportsPageState extends State<MyReportsPage> {
       'category': 'Electricity',
       'status': 'Resolved',
       'imageUrls': [
-        'https://images.unsplash.com/photo-1513002749550-c59d786b8e6c?w=400'
+        "https://www.kcmo.gov/home/showpublishedimage/5632/637498620644970000"
       ],
       'createdAt': '2026-01-15T09:20:00Z',
       'reportedBy': 'user_123',

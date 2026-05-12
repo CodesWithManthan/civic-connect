@@ -58,3 +58,24 @@ cd civic-connect
 flutter pub get
 flutter run
 ```
+
+
+## Screenshots
+
+### Login Screen
+![Login Screen](assets/screenshots/login_screen.png)
+
+### Signup Screen
+![Signup Screen](assets/screenshots/signup_screen.png)
+
+### Home Screen
+![Home Screen](assets/screenshots/home_screen.png)
+
+### Report Issue Screen
+![Report Issue Screen](assets/screenshots/report_issue_screen.png)
+
+### My Reports Screen
+![My Reports Screen](assets/screenshots/my_reports_screen.png)
+
+### Navigation Drawer
+![Navigation Drawer](assets/screenshots/navigation_screen.png)
