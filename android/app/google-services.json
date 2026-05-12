@@ -1,0 +1,47 @@
+{
+  "project_info": {
+    "project_number": "1039776940274",
+    "project_id": "tuto-reallllll",
+    "storage_bucket": "tuto-reallllll.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:1039776940274:android:c4024767ed30f2102c506b",
+        "android_client_info": {
+          "package_name": "com.example.civic_connect"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "1039776940274-fhirkaofe3rc80mus28q4vkog52mjqmo.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.example.civic_connect",
+            "certificate_hash": "11471ad6d82711a2fa00d9bf885be25869585374"
+          }
+        },
+        {
+          "client_id": "1039776940274-3tk0nrbbkuohn28ogr0d1rnqmoktl3l2.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDUr2KcRdBTdn7GhXAu6oJP1XjL1lPUMPA"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "1039776940274-3tk0nrbbkuohn28ogr0d1rnqmoktl3l2.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
