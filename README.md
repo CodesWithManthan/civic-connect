@@ -1,16 +1,60 @@
-# civic_connect
+# CivicConnect
 
-Trail Of Google Maps
+A Flutter-based civic issue management platform enabling citizens and authorities to report, prioritize, and resolve public infrastructure problems.
 
-## Getting Started
+---
 
-This project is a starting point for a Flutter application.
+## Features
 
-A few resources to get you started if this is your first Flutter project:
+- User authentication using Firebase
+- Report civic issues with geotagged images
+- Categorized issue reporting
+- Priority-based issue management
+- Upvote system for issue importance
+- Nearby issue visibility
+- Google Maps integration
+- User issue tracking
+- Department-wise issue management workflow
+- Reopen/report verification system (planned)
 
-- [Lab: Write your first Flutter app](https://docs.flutter.dev/get-started/codelab)
-- [Cookbook: Useful Flutter samples](https://docs.flutter.dev/cookbook)
+---
 
-For help getting started with Flutter development, view the
-[online documentation](https://docs.flutter.dev/), which offers tutorials,
-samples, guidance on mobile development, and a full API reference.
+## Tech Stack
+
+- Flutter
+- Dart
+- Firebase Authentication
+- Cloud Firestore
+- Firebase Storage
+- Google Maps API
+
+---
+
+## Project Structure
+
+```bash
+lib/
+├── core/
+├── features/
+├── shared/
+└── main.dart
+```
+
+
+## Future Improvements
+- Real-time notifications
+- AI-based issue prioritization
+- Government dashboard
+- Analytics and reporting
+- Live issue tracking
+- Multi-language support
+
+
+## Installation
+
+```bash
+git clone https://github.com/CodesWithManthan/civic-connect.git
+cd civic-connect
+flutter pub get
+flutter run
+```
