@@ -78,4 +78,4 @@ flutter run
 ![My Reports Screen](assets/screenshots/my_reports_screen.jpeg)
 
 ### Navigation Drawer
-![Navigation Drawer](assets/screenshots/navigation_screen.jpeg)
+![Navigation Drawer](assets/screenshots/navigation_drawer.jpeg)
