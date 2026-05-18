@@ -1,6 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
-import 'package:civic_connect/features/auth/signup_page.dart';
+import 'package:civic_connect/features/auth/pages/signup_page.dart';
 import 'package:civic_connect/core/auth/google_auth_service.dart';
 
 class LoginPage extends StatefulWidget {

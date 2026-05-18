@@ -1,7 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:civic_connect/features/home/landing_home_page.dart';
-import 'package:civic_connect/features/auth/login_page.dart';
+import 'package:civic_connect/features/auth/pages/login_page.dart';
 
 class wrapper extends StatefulWidget {
   const wrapper({super.key});

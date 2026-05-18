@@ -7,22 +7,8 @@ import 'package:firebase_storage/firebase_storage.dart';
 /// ---------------------------------------------------------------------------
 /// REPORT ISSUE PAGE
 /// ---------------------------------------------------------------------------
-/// PURPOSE:
-/// Allows users to report civic issues by:
-/// - Uploading an image
-/// - Selecting a category
-/// - Writing a description
-/// - Using already provided location (privacy-first approach)
-///
-/// IMPORTANT DESIGN DECISION:
-/// Location permission MUST be handled BEFORE navigating to this page.
-/// This page only displays and uses the received location.
-/// This builds better trust and avoids unnecessary permission prompts.
-///
-/// FIREBASE INTEGRATION NOTES:
-/// - Upload image to Firebase Storage first
-/// - Save issue data to Firestore
-/// - Attach FirebaseAuth user ID
+/// Allows users to report civic issues by capturing a photo and description.
+/// Handles binary data (Images) via Firebase Storage and Metadata via Firestore.
 /// ---------------------------------------------------------------------------
 
 class ReportIssuePage extends StatefulWidget {
@@ -44,19 +30,13 @@ class ReportIssuePage extends StatefulWidget {
 class _ReportIssuePageState extends State<ReportIssuePage> {
 
   /// -------------------- FORM STATE --------------------
-
   final GlobalKey<FormState> _formKey = GlobalKey<FormState>();
-
-  final TextEditingController descriptionController =
-  TextEditingController();
+  final TextEditingController descriptionController = TextEditingController();
 
   String? selectedCategory;
-
   File? selectedImage;
-
   final ImagePicker _picker = ImagePicker();
 
-  /// Available issue categories
   final List<String> categories = [
     'Road',
     'Garbage',
@@ -73,17 +53,14 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
   }
 
   /// ---------------------------------------------------------------------------
-  /// IMAGE PICKING
+  /// IMAGE PICKING LOGIC
   /// ---------------------------------------------------------------------------
-  /// Opens gallery for selecting an image.
-  /// You can later:
-  /// - Add camera support
-  /// - Compress image
-  /// - Extract EXIF GPS metadata
+  /// Triggers the native camera.
+  /// Note: imageQuality is reduced to 80 to save Firebase bandwidth and storage costs.
   Future<void> _pickImage() async {
     try {
       final XFile? image = await _picker.pickImage(
-        source: ImageSource.camera, //Forcing to take pic with camera so no old pic issue
+        source: ImageSource.camera, // Force camera to ensure live reporting
         imageQuality: 80,
         preferredCameraDevice: CameraDevice.rear,
       );
@@ -96,82 +73,65 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text("Camera didn't worked: $e"),
+          content: Text("Camera failed: $e"),
           backgroundColor: Colors.red,
         ),
       );
     }
   }
 
-
-  // Image Upload function in firebase so image gets uploaded in firebase storage
-  // and firestore can get url to show the image in app
+  /// ---------------------------------------------------------------------------
+  /// FIREBASE STORAGE UPLOAD
+  /// ---------------------------------------------------------------------------
+  /// Logic: Firebase Firestore cannot store raw images.
+  /// 1. Upload File to Firebase Storage.
+  /// 2. Retrieve the public "Download URL".
+  /// 3. Return that URL to be saved as a string in the Firestore document.
   Future<String> _uploadImageToFirebase(File imageFile) async {
     try {
-      print("File path: ${imageFile.path}");
-      print("Exists: ${await imageFile.exists()}");
       final storageRef = FirebaseStorage.instance
           .ref()
           .child('issue_images')
+      // Use timestamp to ensure unique filenames
           .child('issue_${DateTime.now().millisecondsSinceEpoch}.jpg');
 
       UploadTask uploadTask = storageRef.putFile(imageFile);
-
       TaskSnapshot snapshot = await uploadTask;
 
+      // Get the URL needed to display this image later in the feed
       String downloadUrl = await snapshot.ref.getDownloadURL();
-
       return downloadUrl;
     } catch (e) {
       throw Exception("Image upload failed: $e");
     }
   }
 
-  /// ---------------------------------------------------------------------------
-  /// FORM VALIDATION
-  /// ---------------------------------------------------------------------------
+  /// Standard validation for required fields
   bool _validateForm() {
     if (selectedImage == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please upload an image'),
-          backgroundColor: Colors.orange,
-        ),
+        const SnackBar(content: Text('Please upload an image'), backgroundColor: Colors.orange),
       );
       return false;
     }
 
     if (selectedCategory == null) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(
-          content: Text('Please select a category'),
-          backgroundColor: Colors.orange,
-        ),
+        const SnackBar(content: Text('Please select a category'), backgroundColor: Colors.orange),
       );
       return false;
     }
 
-    if (!_formKey.currentState!.validate()) {
-      return false;
-    }
-
-    return true;
+    return _formKey.currentState!.validate();
   }
 
   /// ---------------------------------------------------------------------------
-  /// ISSUE SUBMISSION (MVP VERSION)
+  /// SUBMISSION LOGIC (THE "WHOLE PACKAGE")
   /// ---------------------------------------------------------------------------
-  /// Currently:
-  /// - Creates local issue object
-  /// - Returns it to previous screen
-  ///
-  /// In production:
-  /// - Upload image to Firebase Storage
-  /// - Save document in Firestore
-  /// - Handle errors properly
   Future<void> _submitIssue() async {
     if (!_validateForm()) return;
 
+    // Show persistent loader to prevent double-submission during network lag
     showDialog(
       context: context,
       barrierDismissible: false,
@@ -179,19 +139,21 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
     );
 
     try {
-
+      // Step 1: Convert GPS into a readable address for the UI
       String resolvedAddress = await _getAddressFromCoordinates(
         widget.latitude,
         widget.longitude,
       );
-      await Future.delayed(const Duration(seconds: 1));
 
+      // Step 2: Upload image to Storage and get the Link
       String imageUrl = await _uploadImageToFirebase(selectedImage!);
 
       String title = 'Issue reported: ${selectedCategory!.toLowerCase()}';
 
+      // Step 3: Package the Map for Firestore
+      // IMPORTANT: In your IssueService, remember to add 'reportedBy' UID
+      // so the "My Reports" query can filter correctly.
       Map<String, dynamic> newIssue = {
-        'id': 'issue_${DateTime.now().millisecondsSinceEpoch}',
         'title': title,
         'description': descriptionController.text.trim(),
         'category': selectedCategory!,
@@ -202,38 +164,29 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
         'status': 'Reported',
         'upvotes': 0,
         'downvotes': 0,
-        'createdAt': DateTime.now().toIso8601String(),
+        'createdAt': DateTime.now().toIso8601String(), // Optional: Override with ServerTimestamp in Service
       };
 
-      Navigator.pop(context); // Close loading
-
-      Navigator.pop(context, newIssue); // Return issue to previous screen
+      Navigator.pop(context); // Dismiss loader
+      Navigator.pop(context, newIssue); // Pass the data back to HomePage/MyReportsPage to trigger Firestore Write
 
     } catch (e) {
-      Navigator.pop(context);
-
+      Navigator.pop(context); // Dismiss loader
       ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: Text('Submission failed: $e'),
-          backgroundColor: Colors.red,
-        ),
+        SnackBar(content: Text('Submission failed: $e'), backgroundColor: Colors.red),
       );
     }
   }
 
-
-  /// Reverse geocoding to get address from coordinates
-  Future<String> _getAddressFromCoordinates(
-      double latitude,
-      double longitude,
-      ) async {
+  /// ---------------------------------------------------------------------------
+  /// GEOCODING LOGIC
+  /// ---------------------------------------------------------------------------
+  /// Converts lat/lng into a human-friendly location string (e.g., "Street Name, Area").
+  Future<String> _getAddressFromCoordinates(double latitude, double longitude) async {
     try {
-      List<Placemark> placemarks =
-      await placemarkFromCoordinates(latitude, longitude);
-
+      List<Placemark> placemarks = await placemarkFromCoordinates(latitude, longitude);
       Placemark place = placemarks.first;
 
-      // Keep it SHORT and clean
       return [
         place.name,
         place.subLocality,
@@ -241,7 +194,7 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
       ]
           .where((element) => element != null && element!.isNotEmpty)
           .map((e) => e!)
-          .take(4) // Only show 2 parts
+          .take(4)
           .join(", ");
     } catch (e) {
       debugPrint("Geocoding failed: $e");
@@ -249,15 +202,10 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
     }
   }
 
-  /// ---------------------------------------------------------------------------
-  /// UI BUILD
-  /// ---------------------------------------------------------------------------
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(
-        title: const Text('Report an Issue'),
-      ),
+      appBar: AppBar(title: const Text('Report an Issue')),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(16),
         child: Form(
@@ -265,14 +213,10 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
-              /// -------------------- IMAGE SECTION --------------------
-              const Text(
-                'Upload Photo',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Upload Photo', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
+              /// Tapping this triggers the native camera via the _pickImage logic
               GestureDetector(
                 onTap: _pickImage,
                 child: Container(
@@ -284,28 +228,20 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                     border: Border.all(color: Colors.grey.shade400),
                   ),
                   child: selectedImage == null
-                      ? const Center(
-                    child: Text('Tap to Take Photo'),
-                  )
+                      ? const Center(child: Text('Tap to Take Photo'))
                       : ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.file(
-                      selectedImage!,
-                      fit: BoxFit.cover,
-                    ),
+                    child: Image.file(selectedImage!, fit: BoxFit.cover),
                   ),
                 ),
               ),
 
               const SizedBox(height: 24),
 
-              /// -------------------- LOCATION DISPLAY --------------------
-              const Text(
-                'Location',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Location', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 8),
 
+              /// Displays the address passed from the previous screen (Home/MyReports)
               Container(
                 padding: const EdgeInsets.all(12),
                 decoration: BoxDecoration(
@@ -331,40 +267,20 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
 
               const SizedBox(height: 24),
 
-              /// -------------------- CATEGORY --------------------
-              const Text(
-                'Issue Category',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Issue Category', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
               DropdownButtonFormField<String>(
                 value: selectedCategory,
-                items: categories.map((category) {
-                  return DropdownMenuItem(
-                    value: category,
-                    child: Text(category),
-                  );
-                }).toList(),
-                onChanged: (value) {
-                  setState(() {
-                    selectedCategory = value;
-                  });
-                },
-                validator: (value) =>
-                value == null ? 'Please select a category' : null,
-                decoration: const InputDecoration(
-                  border: OutlineInputBorder(),
-                ),
+                items: categories.map((category) => DropdownMenuItem(value: category, child: Text(category))).toList(),
+                onChanged: (value) => setState(() => selectedCategory = value),
+                validator: (value) => value == null ? 'Please select a category' : null,
+                decoration: const InputDecoration(border: OutlineInputBorder()),
               ),
 
               const SizedBox(height: 24),
 
-              /// -------------------- DESCRIPTION --------------------
-              const Text(
-                'Description',
-                style: TextStyle(fontWeight: FontWeight.bold),
-              ),
+              const Text('Description', style: TextStyle(fontWeight: FontWeight.bold)),
               const SizedBox(height: 12),
 
               TextFormField(
@@ -376,19 +292,14 @@ class _ReportIssuePageState extends State<ReportIssuePage> {
                   hintText: 'Describe the issue...',
                 ),
                 validator: (value) {
-                  if (value == null || value.trim().isEmpty) {
-                    return 'Description required';
-                  }
-                  if (value.trim().length < 10) {
-                    return 'Minimum 10 characters required';
-                  }
+                  if (value == null || value.trim().isEmpty) return 'Description required';
+                  if (value.trim().length < 10) return 'Minimum 10 characters required';
                   return null;
                 },
               ),
 
               const SizedBox(height: 32),
 
-              /// -------------------- SUBMIT BUTTON --------------------
               SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(

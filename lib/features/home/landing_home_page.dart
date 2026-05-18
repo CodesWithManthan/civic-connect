@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:civic_connect/core/auth/google_auth_service.dart';
-import 'package:civic_connect/features/issues/issue_detail_page.dart';
-import 'package:civic_connect/shared/widgets/issue_card.dart';
-import 'package:civic_connect/features/issues/report_issue_page.dart';
+import 'package:civic_connect/features/issues/pages/issue_detail_page.dart';
+import 'package:civic_connect/features/issues/widgets/issue_card.dart';
+import 'package:civic_connect/features/issues/pages/report_issue_page.dart';
 import 'package:civic_connect/shared/utils/distance_calculator.dart';
 import 'package:civic_connect/features/issues/data/mock_card_data.dart'; // Still used for currentLatitude ?? 0/Longitude
 import 'package:civic_connect/core/navigation/drawer_widget.dart';

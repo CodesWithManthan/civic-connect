@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:civic_connect/features/static/about_us_page.dart';
-import 'package:civic_connect/features/issues/my_reports_page.dart';
+import 'package:civic_connect/features/issues/pages/my_reports_page.dart';
 
 /// ---------------------------------------------------------------------------
 /// APP DRAWER - MAIN NAVIGATION
